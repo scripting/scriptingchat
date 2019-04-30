@@ -1,4 +1,4 @@
-var myVersion = "0.4.3", myProductName = "scriptingchatbot";
+var myVersion = "0.4.5", myProductName = "scriptingchatbot";
 
 const request = require ("request");
 const utils = require ("daveutils");
@@ -14,7 +14,7 @@ var config = {
 	myIcon: "http://static.scripting.com/larryKing/images/2012/10/16/clarus.gif",
 	pingCallback: {
 		port: 1414,
-		path: "feedping"
+		path: "/feedping"
 		},
 	oauthToken: undefined,
 	oauthTokenSecret: undefined
@@ -36,7 +36,6 @@ var stats = {
 	};
 const fnameStats = "stats.json";
 var flStatsChanged = false;
-var flRequestedNotification = false;
 
 function statsChanged () {
 	flStatsChanged = true;
@@ -116,55 +115,7 @@ function postItemToChat (guid, item) {
 	stats.whenLastPost = new Date ();
 	statsChanged ();
 	}
-function pleaseNotify (theCloud, callback) {
-	var urlCloudServer = "http://" + theCloud.domain + ":" + theCloud.port + theCloud.path;
-	var now = new Date ();
-	var theRequest = {
-		url: urlCloudServer,
-		followRedirect: true, 
-		headers: {Accept: "application/json"},
-		method: "POST",
-		form: {
-			port: config.pingCallback.port,
-			path: config.pingCallback.path,
-			url1: config.urlFeed,
-			protocol: "http-post"
-			}
-		};
-	console.log ("pleaseNotify: theRequest == " + utils.jsonStringify (theRequest));
-	request (theRequest, function (err, response, body) {
-		if (err) {
-			console.log ("pleaseNotify: err.message == " + err.message);
-			}
-		else {
-			console.log ("pleaseNotify: response == " + utils.jsonStringify (response));
-			}
-		});
-	}
-function handlePing (feedUrl, callback) {
-	checkFeed ();
-	}
-function startServer () {
-	var httpconfig = {
-		port: config.pingCallback.port,
-		flPostEnabled: true,
-		flLogToConsole: true
-		};
-	davehttp.start (httpconfig, function (theRequest) {
-		console.log ("davehttp.start: theRequest.lowerpath == " + theRequest.lowerpath + ", theRequest.method == " + theRequest.method);
-		if (theRequest.lowerpath == ("/" + config.pingCallback.path)) {
-			var jstruct = qs.parse (theRequest.postBody);
-			console.log (theRequest.lowerpath + " -- jstruct.url == " + jstruct.url);
-			handlePing (jstruct.url, function (err, data) {
-				theRequest.httpReturn (200, "text/plain", "Thanks for the update! ;-)");
-				});
-			}
-		else {
-			theRequest.httpReturn (404, "text/plain", "Not found.");
-			}
-		});
-	}
-function checkFeed (callback) {
+function checkFeed (feedUrl, callback) {
 	const whenstart = new Date ();
 	function ifNotNull (val) {
 		if (val == null) {
@@ -174,7 +125,7 @@ function checkFeed (callback) {
 			return (val);
 			}
 		}
-	feedRead.parseUrl (config.urlFeed, config.timeOutSecs, function (err, theFeed) {
+	feedRead.parseUrl (feedUrl, config.timeOutSecs, function (err, theFeed) {
 		if (err) {
 			console.log ("checkFeed: err.message == " + err.message);
 			}
@@ -200,18 +151,6 @@ function checkFeed (callback) {
 			}
 		stats.flFirstCheck = false;
 		statsChanged ();
-		
-		if (theFeed.head.cloud !== undefined) {
-			if (!flRequestedNotification) {
-				console.log (utils.jsonStringify (theFeed.head.cloud));
-				pleaseNotify (theFeed.head.cloud, callback);
-				flRequestedNotification = true; //once per run
-				stats.ctNotificationRequests++;
-				stats.whenLastNoficationRequest = new Date ();
-				statsChanged ();
-				}
-			}
-		
 		if (callback !== undefined) {
 			callback ();
 			}
@@ -245,12 +184,7 @@ function everySecond () {
 		}
 	}
 function everyMinute () {
-	var now = new Date ();
-	console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString ());
-	checkFeed ();
-	}
-function everyHour () {
-	flRequestedNotification = false; //do another one every hour
+	checkFeed (config.urlFeed);
 	}
 
 loadJsonFile (fnameConfig, config, function () {
@@ -259,9 +193,14 @@ loadJsonFile (fnameConfig, config, function () {
 		stats.ctStarts++;
 		stats.whenLastStart = new Date ();
 		statsChanged ();
-		startServer ();
-		checkFeed ();
-		setInterval (everyHour, 60 * 60 * 1000); 
+		
+		const options = {
+			port: config.pingCallback.port,
+			path: config.pingCallback.path,
+			feedUpdatedCallback: checkFeed
+			};
+		feedRead.startCloud (options);
+		
 		setInterval (everySecond, 1000); 
 		utils.runEveryMinute (everyMinute);
 		});

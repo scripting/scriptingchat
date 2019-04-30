@@ -3,7 +3,7 @@
 	"description": "Post items from an RSS feed to a chat server.",
 	"author": "Dave Winer <dave@smallpicture.com>",
 	"license": "MIT",
-	"version": "0.4.3",
+	"version": "0.4.5",
 	"dependencies" : {
 		"daveutils": "*",
 		"davefeedread": "*",
