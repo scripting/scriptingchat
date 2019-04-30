@@ -1,0 +1,19 @@
+{
+	"httpPort": 1412,
+	"websocketPort": 1413,
+	"myDomain": "chat.scripting.com",
+	"owner": "davewiner",
+	"blacklist": [],
+	"client": {
+		"flReadOnlyMode": false,
+		"productnameForDisplay": "Scripting Chat",
+		"leadingQuestion": "Be nice and be concise.", 
+		"editorPlaceholderText": "A short bit of additional info, no debates.",
+		"urlChatServer": "http://chat.scripting.com/",
+		"urlChatSocket": "ws://chat.scripting.com:1413/"
+		},
+	"twitter": {
+		"twitterConsumerKey": "hE8H8bdcnj4hK8uPX4lJvgpg9",
+		"twitterConsumerSecret": "DGvnY67wnZ8xfWm5We4GhGCfxf0tyMq2nMT7SVOMVDxQ3aaCyK"
+		}
+	}

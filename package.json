@@ -1,0 +1,15 @@
+{ 
+	"name": "scriptingChatServer", 
+	"version": "0.4.0",
+	"description": "Server for scripting.com chat tab.",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js"
+		},
+	"dependencies" : {
+		"davechat": "*"
+		}, 
+	"engines": { 
+		"node": "*"
+		}
+	}

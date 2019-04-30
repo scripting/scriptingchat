@@ -1,0 +1,14 @@
+{
+	"name": "scriptingchatbot",
+	"description": "Post items from an RSS feed to a chat server.",
+	"author": "Dave Winer <dave@smallpicture.com>",
+	"license": "MIT",
+	"version": "0.4.3",
+	"dependencies" : {
+		"daveutils": "*",
+		"davefeedread": "*",
+		"davehttp": "*",
+		"querystring": "*",
+		"request": "*"
+		} 
+	}
